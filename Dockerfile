@@ -27,9 +27,9 @@ RUN mkdir "$ANDROID_HOME" .android \
     && rm sdk.zip
 
 # Add android tools and platform tools to PATH
-RUN cd /opt/tools/bin/ \
-    && ./sdkmanager --licenses \
-    && ./sdkmanager "platform-tools" "platforms;android-27" "build-tools;27.0.2" "system-images;android-27;google_apis_playstore;x86"
+RUN cd /opt/tools/bin/  && \
+    ./sdkmanager --licenses && \
+    ./sdkmanager "platform-tools" "platforms;android-27" "build-tools;27.0.2" "system-images;android-27;google_apis_playstore;x86"
 
 # Create fake keymaps
 RUN mkdir /usr/local/android-sdk/tools/keymaps && \
