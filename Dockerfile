@@ -19,6 +19,13 @@ ENV ANDROID_HOME="/opt/sdk-tools/" \
     SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip"
 
 
+#Steps:
+# -- build image like this with the commented lines
+# -- add some general/default entrypoint only to allow you to connect to the container
+# -- log into container and inspect $ANDROID_HOME and see what the heck does it install there
+# -- and if it installs something
+# 
+
 # Install android sdk
 RUN mkdir "$ANDROID_HOME" .android \
     && cd "$ANDOID_HOME" \
@@ -27,15 +34,16 @@ RUN mkdir "$ANDROID_HOME" .android \
     && rm sdk.zip
 
 # Add android tools and platform tools to PATH
-RUN cd /opt/tools/bin/  && \
-    ./sdkmanager --licenses && \
-    ./sdkmanager "platform-tools" "platforms;android-27" "build-tools;27.0.2" "system-images;android-27;google_apis_playstore;x86"
+#RUN cd /opt/sdk-tools/tools/bin  && \
+#RUN  /opt/sdk-tools/tools/bin/sdkmanager --licenses 
+#&& \
+#    ./sdkmanager "platform-tools" "platforms;android-27" "build-tools;27.0.2" "system-images;android-27;google_apis_playstore;x86"
 
 # Create fake keymaps
-RUN mkdir /usr/local/android-sdk/tools/keymaps && \
-    touch /usr/local/android-sdk/tools/keymaps/en-us
+#RUN mkdir /usr/local/android-sdk/tools/keymaps && \
+#    touch /usr/local/android-sdk/tools/keymaps/en-us
 
 # Add entrypoint
-ADD entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+#ADD entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
+#ENTRYPOINT ["/entrypoint.sh"]
