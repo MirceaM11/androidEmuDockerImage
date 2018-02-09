@@ -1,41 +1,43 @@
-# Android development environment for ubuntu.
-#
-###1###  first stage: pulling ubuntu:16.04
 FROM ubuntu:16.04
 
 MAINTAINER mircea.milencianu <mircea.milencianu@endava.com>
 
-# Update packages
+RUN apt-get update \
+    && apt-get install -y sudo \
+    && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:webupd8team/java -y \
+    && apt-get update \
+    && echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections \
+    && apt-get install -y oracle-java8-installer \
+    && apt-get clean
 
-RUN apt-get -y update \
-    && apt-get -y install software-properties-common bzip2 net-tools curl \
-    && apt-get -y update
 
-###2### second stage: pulling openjdk:8
-FROM openjdk:8
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y net-tools file git curl zip libncurses5:i386 libstdc++6:i386 zlib1g:i386 \ 
+    && apt-get clean \ 
+    && rm -rf /var/lib/apt/lists /var/cache/apt
 
 # Set up environment variables
-ENV ANDROID_HOME="/opt/sdk-tools/" \
+ENV ANDROID_HOME="/home/emuUser/sdk-tools" \
     SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip"
 
+RUN useradd -m emuUser \
+    && echo "emuUser:emulator" | chpasswd && adduser emuUser sudo
 
+USER emuUser
+
+WORKDIR /home/emuUser
+	
 # Install android sdk
-RUN mkdir "$ANDROID_HOME" .android \
-    && cd "$ANDOID_HOME" \
+RUN mkdir sdk-tools \
+    && cd sdk-tools \
     && curl -o sdk.zip $SDK_URL \
     && unzip sdk.zip \
-    && rm sdk.zip
+    && rm sdk.zip 
 
-# Add android tools and platform tools to PATH
-RUN cd /opt/tools/bin/ \
-    && ./sdkmanager --licenses \
-    && ./sdkmanager "platform-tools" "platforms;android-27" "build-tools;27.0.2" "system-images;android-27;google_apis_playstore;x86"
+WORKDIR /home/emuUser/sdk-tools/tools/bin
 
-# Create fake keymaps
-RUN mkdir /usr/local/android-sdk/tools/keymaps && \
-    touch /usr/local/android-sdk/tools/keymaps/en-us
+RUN echo yes | ./sdkmanager --licenses
 
-# Add entrypoint
-ADD entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ENV PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${PATH}"
